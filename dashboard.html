@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1 { color: #2c3e50; }
+    input, button { padding: 8px; margin: 5px 0; width: 100%; max-width: 300px; }
+    .success { color: green; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+
+  <h1>User Dashboard</h1>
+
+  <div id="registerSection">
+    <h2>Register</h2>
+    <input type="text" id="name" placeholder="Name">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="registerUser()">Register</button>
+    <p id="registerMsg"></p>
+  </div>
+
+  <div id="loginSection">
+    <h2>Login</h2>
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPassword" placeholder="Password">
+    <button onclick="loginUser()">Login</button>
+    <p id="loginMsg"></p>
+  </div>
+
+  <div id="adminSection" style="display:none;">
+    <h2>Admin Panel</h2>
+    <p>Welcome, admin user!</p>
+  </div>
+
+  <script>
+    async function registerUser() {
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const msg = document.getElementById("registerMsg");
+
+      try {
+        const res = await fetch("http://127.0.0.1:3000/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password })
+        });
+
+        const text = await res.text();
+        msg.textContent = text;
+        msg.className = res.ok ? "success" : "error";
+      } catch (err) {
+        msg.textContent = "❌ Server error";
+        msg.className = "error";
+      }
+    }
+
+    async function loginUser() {
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+      const msg = document.getElementById("loginMsg");
+
+      try {
+        const res = await fetch("http://127.0.0.1:3000/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const text = await res.text();
+        msg.textContent = text;
+
+        if (res.ok && text.includes("admin: 1")) {
+          document.getElementById("adminSection").style.display = "block";
+        }
+
+        msg.className = res.ok ? "success" : "error";
+      } catch (err) {
+        msg.textContent = "❌ Server error";
+        msg.className = "error";
+      }
+    }
+  </script>
+</body>
+</html>
